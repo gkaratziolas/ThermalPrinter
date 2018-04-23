@@ -1,5 +1,6 @@
 import time
 import serial
+import Bitmap
 
 # ASCII codes used by some of the printer config commands:
 ASCII_TAB = '\t' # Horizontal tab
@@ -57,7 +58,9 @@ kDotPrintTime   = 30000; # See comments near top of file for
 kDotFeedTime    =  2100; # an explanation of these values.
 kMaxChunkHeight =   255;
 
-
+def not_byte(n):
+    not_n = 256 - n - 1
+    return (not_n).to_bytes(1, "little")
 
 class ThermalPrinter(object):
     def __init__(self, port):
@@ -82,18 +85,15 @@ class ThermalPrinter(object):
         if type(b) == bytes:
             data = b
         elif type(b) == str:
-            data = b
+            data = b.encode("utf-8")
         elif type(b) == hex:
-            data = chr(b)
+            data = (b).to_bytes(1, "little")
         elif type(b) == float:
             b = int(b)
         elif type(b) == int:
-            data = chr(b)
-
-        data = data.encode("utf-8")
+            data = (b).to_bytes(1, "little")
 
         self.ser.write(data)
-        print(data)
 
     def send_bytes(self, *bs):
         for b in bs:
@@ -102,6 +102,7 @@ class ThermalPrinter(object):
                     self.send_byte(c)
             else:
                 self.send_byte(b)
+                self.prevByte = b;
 
     def wake(self):
         self.send_bytes(255) # Wake from low-energy state
@@ -133,10 +134,24 @@ class ThermalPrinter(object):
         self.send_bytes(ASCII_FF)
 
 
+    def print_bitmap(self, bitmap):
+        #for i in range(bitmap.height):
+        # can only send upto 256 bytes at a time
+        # chunk_height_limit = 256 // bitmap.width_bytes
+        chunk_height_limit = 1
+        for row in range(bitmap.height-chunk_height_limit, -1, -1*chunk_height_limit):
+            self.send_bytes(ASCII_DC2, '*', chunk_height_limit, bitmap.width_bytes)
+            for b in bitmap.image_data[row*bitmap.width_bytes: (row+chunk_height_limit)*bitmap.width_bytes]:
+                self.send_byte(not_byte(b))
+
+
+
 if __name__ == "__main__":
     printer = ThermalPrinter("/dev/ttyUSB0")
-    printer.feed(1)
-    #printer.flush()
-    printer.send_bytes("Hello World\nHello\nHello\n")
-    printer.send_bytes("AAA")
-    printer.feed(1)
+    printer.feed(2)
+    image = Bitmap.Bitmap()
+    image.load_file("demo.bmp")
+    printer.print_bitmap(image)
+    printer.send_bytes("Choggy Carrots - 2018")
+    time.sleep(0.5)
+    printer.feed(3)
