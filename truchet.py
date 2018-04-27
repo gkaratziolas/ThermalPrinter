@@ -1,10 +1,14 @@
 import ThermalPrinter
 import Bitmap
 import random
+import math
 
 kTileSize = 24
 kWidth    = 384
 kHeight   = 384
+
+kBlack = 0
+kWhite = 1
 
 
 def blank_canvas():
@@ -13,6 +17,17 @@ def blank_canvas():
         canvas.append([1]*kWidth)
     return canvas
 
+def draw_line(canvas, x0, y0, x1, y1, colour=kBlack):
+    dx = x1-x0
+    dy = y1-y0
+    if math.fabs(dx) >= math.fabs(dy): # iterate across x
+        for x in range(x0, x1, int(math.fabs(x1-x0)/(x1-x0))):
+            y = int(y0 + (x-x0)*dy/dx + 0.5)
+            canvas[y][x] = colour
+    else: # iterate across y
+        for y in range(y0, y1, int(math.fabs(y1-y0)/(y1-y0))):
+            x = int(x0 + (y-y0)*dx/dy + 0.5)
+            canvas[y][x] = colour
 
 def img_to_bytes(img):
     val = ""
@@ -71,8 +86,71 @@ def full_truchet():
             t = random.randint(0, 3)
             draw_truchet_tile(x,y,t, canvas)
 
-    print_work(canvas, "Truchet - 2018")
+    print_work(canvas, "Truchet ({}) - 2018".format(kTileSize))
 
+def mess_of_lines(n):
+    canvas = blank_canvas()
+    x0, y0 = 0,0
+    for i in range(n):
+        x1 = random.randint(0, kWidth-1)
+        y1 = random.randint(0, kHeight-1)
+        draw_line(canvas, x0, y0, x1, y1)
+        x0, y0 = x1, y1
+    print_work(canvas, "mess of lines lines ({}) - 2018".format(n))
+
+def star(p, r, cx, cy):
+    canvas = blank_canvas()
+    for i in range(p):
+        theta = 2*math.pi*(i/p)
+        x = int(r*math.cos(theta) + cx)
+        y = int(r*math.sin(theta) + cy)
+        draw_line(canvas, cx, cy, x, y)
+    print_work(canvas, "Star ({}) - 2018".format(p))
+
+def star2(p, r, cx, cy):
+    canvas = blank_canvas()
+    for i in range(p):
+        theta = 2*math.pi*(i/p)
+        x = int(r*math.cos(theta) + cx)
+        y = int(r*math.sin(theta) + cy)
+        draw_line(canvas, cx, cy, x, y)
+
+        theta1 = 2*math.pi*((i-1)/p)
+        x1 = int(r*math.cos(theta1) + x)
+        y1 = int(r*math.sin(theta1) + y)
+        draw_line(canvas, x, y, x1, y1)
+
+        theta2 = 2*math.pi*((i+1)/p)
+        x2 = int(r*math.cos(theta2) + x)
+        y2 = int(r*math.sin(theta2) + y)
+        draw_line(canvas, x, y, x2, y2)
+    print_work(canvas, "Star2 ({}) - 2018".format(p))
+
+def gradient():
+    canvas = blank_canvas()
+    for y in range(kHeight):
+        for x in range(kHeight):
+            a = random.uniform(0,1)
+            if x/kWidth < a:
+                canvas[y][x] = kBlack
+    print_work(canvas, "Random Dither - 2018")
+
+def gradient2(r):
+    cx = kWidth//2
+    cy = kHeight//2
+    canvas = blank_canvas()
+    for y in range(kHeight):
+        for x in range(kWidth):
+            a = random.uniform(0,1)
+
+            if math.sqrt((x-cx)**2 + (y-cy)**2) < r:
+                if x/kWidth < a:
+                    canvas[y][x] = kBlack
+            else:
+                if x/kWidth > a:
+                    canvas[y][x] = kBlack
+
+    print_work(canvas, "Circular Dither ({}) - 2018".format(r))
 
 def worm(n):
     canvas = blank_canvas()
@@ -94,5 +172,7 @@ def worm(n):
 
 
 if __name__ == "__main__":
-    full_truchet()
-    worm(100000)
+    gradient2(20)
+    #star2(20, 70, kHeight//2, kWidth//2)
+    #full_truchet()
+    #worm(100000)

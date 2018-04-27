@@ -39,7 +39,7 @@ kPrinterTimeout  = 20
 
 kHeatTime     = 44
 kHeatDots     = 80
-kHeatInterval = 20
+kHeatInterval = 100
 
 
   # Print density description from manual:
