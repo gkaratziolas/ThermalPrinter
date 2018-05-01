@@ -3,7 +3,7 @@ import Bitmap
 import random
 import math
 
-kTileSize = 24
+kTileSize = 48
 kWidth    = 384
 kHeight   = 384
 
@@ -17,17 +17,29 @@ def blank_canvas():
         canvas.append([1]*kWidth)
     return canvas
 
+def draw_dot(canvas, x, y, colour=kBlack):
+    if x < kWidth and x >= 0:
+        if y < kHeight and y >= 0:
+            canvas[y][x] = colour
+
 def draw_line(canvas, x0, y0, x1, y1, colour=kBlack):
     dx = x1-x0
     dy = y1-y0
     if math.fabs(dx) >= math.fabs(dy): # iterate across x
         for x in range(x0, x1, int(math.fabs(x1-x0)/(x1-x0))):
             y = int(y0 + (x-x0)*dy/dx + 0.5)
-            canvas[y][x] = colour
+            draw_dot(canvas, x, y)
     else: # iterate across y
         for y in range(y0, y1, int(math.fabs(y1-y0)/(y1-y0))):
             x = int(x0 + (y-y0)*dx/dy + 0.5)
-            canvas[y][x] = colour
+            draw_dot(canvas, x, y)
+
+def draw_circle(canvas, cx, cy, r, colour=kBlack):
+    for i in range(1,1001):
+        theta = 1000*2*math.pi/i
+        x = cx + r*math.cos(theta)
+        y = cy + r*math.sin(theta)
+        draw_dot(canvas, int(x+0.5), int(y+0.5), colour)
 
 def img_to_bytes(img):
     val = ""
@@ -147,7 +159,7 @@ def gradient2(r):
                 if x/kWidth < a:
                     canvas[y][x] = kBlack
             else:
-                if x/kWidth > a:
+                if (x/kWidth) > a:
                     canvas[y][x] = kBlack
 
     print_work(canvas, "Circular Dither ({}) - 2018".format(r))
@@ -170,9 +182,45 @@ def worm(n):
 
     print_work(canvas, "Worm {} - 2018".format(n))
 
+def circles(n, r0, d):
+    canvas = blank_canvas()
+    cx, cy = kWidth//2, kHeight//2
+    r = r0
+    a = 1
+    for i in range(0, n):
+        draw_circle(canvas, cx, cy, r)
+        cx = cx + a * d
+        r  = r  + d
+        a = -1 * a
+
+    print_work(canvas, "Circles {} - 2018".format(n))
+
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
+
+def sphere(r):
+    canvas = blank_canvas()
+    cx, cy = kWidth//2, kHeight//2
+    for x in range(kWidth):
+        for y in range(kHeight):
+            a = random.uniform(0,1)
+            if math.sqrt((x-cx)**2 + (y-cy)**2) < r:
+                D = 0.5 + (math.asin( (x-cx)/math.sqrt(r**2 - (y-cy)**2) ))/(2*math.pi)
+                a = random.uniform(-1,1)
+                a = sigmoid(a)
+                if a >= D:
+                    canvas[y][x] = kBlack
+                else:
+                    canvas[y][x] = kWhite
+            else:
+                if (x/kWidth) > a:
+                    canvas[y][x] = kBlack
+    print_work(canvas, "Spherical Dither ({}) - 2018".format(r))
 
 if __name__ == "__main__":
-    gradient2(20)
-    #star2(20, 70, kHeight//2, kWidth//2)
+    #sphere(150)
+    #gradient2(150)
+    circles(30, 20, 20)
+    #star2(111, 90, kHeight//2, kWidth//2)
     #full_truchet()
     #worm(100000)
