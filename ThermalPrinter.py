@@ -136,12 +136,20 @@ class ThermalPrinter(object):
     def print_bitmap(self, bitmap):
         #for i in range(bitmap.height):
         # can only send upto 256 bytes at a time
-        # chunk_height_limit = 256 // bitmap.width_bytes
-        chunk_height_limit = 1
-        for row in range(bitmap.height-chunk_height_limit, -1, -1*chunk_height_limit):
-            self.send_bytes(ASCII_DC2, '*', chunk_height_limit, bitmap.width_bytes)
-            for b in bitmap.image_data[row*bitmap.width_bytes: (row+chunk_height_limit)*bitmap.width_bytes]:
+        chunk_height_limit = 256 // bitmap.width_bytes
+
+        for row in range(bitmap.height):
+            self.send_bytes(ASCII_DC2, '*', 1, bitmap.width_bytes)
+
+            for b in bitmap.image_data[row*bitmap.width_bytes: (row+1)*bitmap.width_bytes]:
                 self.send_byte(not_byte(b))
+
+
+#        for row in range(bitmap.height-chunk_height_limit, -1, -1*chunk_height_limit):
+#            print("a")
+#            self.send_bytes(ASCII_DC2, '*', chunk_height_limit, bitmap.width_bytes)
+#            for b in bitmap.image_data[row*bitmap.width_bytes: (row+chunk_height_limit)*bitmap.width_bytes]:
+#                self.send_byte(not_byte(b))
 
 
 
