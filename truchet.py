@@ -346,7 +346,7 @@ def cam_print():
     P = ThermalPrinter.ThermalPrinter("/dev/ttyUSB0")
     B = Bitmap.Bitmap()
     run = False
-    cap = cv.VideoCapture(0)
+    cap = cv.VideoCapture(1)
     cv.namedWindow('image')
     cv.createTrackbar('A','image',0,255,nothing)
     cv.createTrackbar('B','image',0,255,nothing)
@@ -377,11 +377,7 @@ def cam_print():
             if not run:
                 canvas = edges.tolist()
                 bw_image(canvas, invert=False)
-                print_work(canvas, "Self portrait - chog")
-                break
-            else:
-                bw_image(canvas, invert=False)
-                print_work(canvas, "Self portrait - chog")
+                print_work(canvas, "")
                 break
         elif key == ord('r'):
             run = True
@@ -389,8 +385,32 @@ def cam_print():
     cap.release()
     cv.destroyAllWindows()
 
+def long_truchet():
+    canvas = blank_canvas()
+    for x in range(0, kWidth//kTileSize):
+        for y in range(0, kHeight//kTileSize):
+            t = random.randint(0, 3)
+            draw_truchet_tile(x,y,t, canvas)
 
-cam_print()
+    P = ThermalPrinter.ThermalPrinter("/dev/ttyUSB0")
+    B = Bitmap.Bitmap()
+    B.width_bytes = len(canvas[0])//8
+    B.height = 1
+
+    repeat = 1
+    for c in canvas:
+        data = img_to_bytes([c])
+        repeat = repeat + random.randint(-1,1)
+        if repeat < 0:
+            repeat = 0
+        if repeat > 10:
+            repeat = 10
+        B.image_data = data
+        for i in range(repeat):
+            P.print_bitmap(B)
+    P.feed(1)
+long_truchet()
+#cam_print()
 
 #if __name__ == "__main__":
 #    canvas = blank_canvas()
