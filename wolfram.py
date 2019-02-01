@@ -40,6 +40,7 @@ if __name__ == "__main__":
     parser.add_argument("-w", "--width", type=int, help="Width of the space.", default=80)
     parser.add_argument("-x", "--random", action="store_true", help="Popuate generation 0 randomly")
     parser.add_argument("-c", action="store_true", help="Turns grid into a continuous surface which wraps-around the edges")
+    parser.add_argument("-t", "--time_delay", type=float, help="Delay between sucessive generations in seconds", default=0.1)
 
     args = parser.parse_args()
 
@@ -65,4 +66,4 @@ if __name__ == "__main__":
                 print(" ", end = "")
         print()
         next_row(row, args.rule, wrap=args.c)
-        time.sleep(0.1)
+        time.sleep(args.time_delay)
