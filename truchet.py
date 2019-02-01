@@ -409,7 +409,27 @@ def long_truchet():
         for i in range(repeat):
             P.print_bitmap(B)
     P.feed(1)
-long_truchet()
+#long_truchet()
+
+def wolfram_pattern():
+    import wolfram
+
+    row = [0]*kWidth
+    row[kWidth//2] = 1
+    rule = 30
+
+    P = ThermalPrinter.ThermalPrinter("/dev/ttyUSB0")
+    B = Bitmap.Bitmap()
+    B.width_bytes = len(row)//8
+    B.height = 1
+
+    while 1:
+        data = img_to_bytes([row])
+        P.print_bitmap(B)
+        next_row(row, rule, wrap=True)
+        
+wolfram_pattern()
+
 #cam_print()
 
 #if __name__ == "__main__":
