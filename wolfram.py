@@ -56,14 +56,25 @@ if __name__ == "__main__":
     else:
         row[args.width//2] = 1
 
-    rule = args.rule
+    generation_counter_max = 0
+    if args.rule < 0:
+        rule = random.randint(0, 255)
+        generation_counter_max = -1*args.rule
+    else:
+        rule = args.rule
+
+    generation_counter = 0
 
     while 1:
+        generation_counter += 1
         for r in row:
             if r == 1:
                 print("*", end = "")
             else:
                 print(" ", end = "")
         print()
-        next_row(row, args.rule, wrap=args.c)
+        next_row(row, rule, wrap=args.c)
         time.sleep(args.time_delay)
+        if generation_counter == generation_counter_max and generation_counter_max != 0:
+            generation_counter = 0
+            rule = random.randint(0,255)
