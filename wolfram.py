@@ -1,5 +1,9 @@
-import time
+#!/usr/bin/python3
 
+import argparse
+import time
+import sys
+import random
 
 def apply_rule(rule, a, b, c):
     if rule > 255 or rule < 0:
@@ -31,16 +35,34 @@ def next_row(row, rule, wrap=False):
         row[i] = apply_rule(rule, a, b, c)
 
 if __name__ == "__main__":
-    row = [0]*80
-    row[40] = 1
-    rule = 30
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", "--rule", type=int, help="Wolfram rule to apply. Supply in base 10 (0-255).")
+    parser.add_argument("-w", "--width", type=int, help="Width of the space.", default=80)
+    parser.add_argument("-x", "--random", action="store_true", help="Popuate generation 0 randomly")
+    parser.add_argument("-c", action="store_true", help="Turns grid into a continuous surface which wraps-around the edges")
+
+    args = parser.parse_args()
+
+    if args.rule == None:
+        print("Error: A wolfram rule must be set (with -r)")
+        sys.exit(1)
+
+    row = [0]*args.width
+
+    if args.random:
+        for i in range(len(row)):
+            row[i] = random.randint(0,1)
+    else:
+        row[args.width//2] = 1
+
+    rule = args.rule
 
     while 1:
         for r in row:
             if r == 1:
-                print("*", end = " ")
+                print("*", end = "")
             else:
-                print(" ", end = " ")
+                print(" ", end = "")
         print()
-        next_row(row, rule, wrap=True)
+        next_row(row, args.rule, wrap=args.c)
         time.sleep(0.1)
