@@ -133,6 +133,11 @@ class ThermalPrinter(object):
     def flush(self):
         self.send_bytes(ASCII_FF)
 
+    def print_row(self, data):
+        self.send_bytes(ASCII_DC2, '*', 1, len(row))
+        for b in row:
+            self.send_byte(not_byte(b))
+
     def print_bitmap(self, bitmap):
         #for i in range(bitmap.height):
         # can only send upto 256 bytes at a time
