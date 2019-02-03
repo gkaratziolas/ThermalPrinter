@@ -45,9 +45,21 @@ def draw_circle(canvas, cx, cy, r, colour=kBlack):
         y = cy + r*math.sin(theta)
         draw_dot(canvas, int(x+0.5), int(y+0.5), colour)
 
-def img_to_bytes(img):
+def row_to_bytes(row, padding=True):
+    if padding and len(row) < kWidth:
+        row += [0]*(kWidth - len(row))
+    row = [str(r) for r in row]
+    row = "".join(row)
+    
+    bts = int(row, 2).to_bytes(len(row)//8, "big")
+    return bts
+
+
+def img_to_bytes(img, padding=True):
     val = ""
     for row in img:
+        if padding and len(row) < kWidth:
+            row += [0] * (kWidth - len(row))
         row = [str(r) for r in row]
         row = "".join(row)
         val += row
