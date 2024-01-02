@@ -139,31 +139,28 @@ class ThermalPrinter(object):
             self.send_byte(not_byte(b))
 
     def print_bitmap(self, bitmap):
-        #for i in range(bitmap.height):
-        # can only send upto 256 bytes at a time
-        chunk_height_limit = 256 // bitmap.width_bytes
-
-        for row in range(bitmap.height):
+        print(bitmap.width_bytes, bitmap.height)
+        for row in range(bitmap.height-1, -1, -1):
+            print(bitmap.image_data[row*bitmap.width_bytes: (row+1)*bitmap.width_bytes])
             self.send_bytes(ASCII_DC2, '*', 1, bitmap.width_bytes)
 
             for b in bitmap.image_data[row*bitmap.width_bytes: (row+1)*bitmap.width_bytes]:
                 self.send_byte(not_byte(b))
 
-
-#        for row in range(bitmap.height-chunk_height_limit, -1, -1*chunk_height_limit):
-#            print("a")
-#            self.send_bytes(ASCII_DC2, '*', chunk_height_limit, bitmap.width_bytes)
-#            for b in bitmap.image_data[row*bitmap.width_bytes: (row+chunk_height_limit)*bitmap.width_bytes]:
-#                self.send_byte(not_byte(b))
-
-
+from hanzi import *
 
 if __name__ == "__main__":
-    printer = ThermalPrinter("/dev/ttyUSB0")
+    printer = ThermalPrinter("COM5")
+    message = "艾莉"
     printer.feed(2)
     image = Bitmap.Bitmap()
-    image.load_file("demo.bmp")
-    printer.print_bitmap(image)
-    printer.send_bytes("Choggy Carrots - 2018")
-    time.sleep(0.5)
+    for char in message:
+        bitmap = create_bitmap(char, kaiti_path, 384)
+        bitmap = bitmap.convert("1")
+        bitmap.save("tmp.bmp")
+        image.load_file("tmp.bmp")
+        printer.print_bitmap(image)
+        
     printer.feed(3)
+    #printer.send_bytes("jia1")
+    time.sleep(0.5)

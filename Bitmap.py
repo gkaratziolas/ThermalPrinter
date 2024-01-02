@@ -35,11 +35,21 @@ class Bitmap(object):
         self.important_colours = int.from_bytes(data[50:54], byteorder="little")
 
         self.width_bytes       = math.ceil((self.width * self.bits_per_pixel)/8)
+        ext_width_bytes = self.width_bytes
+        if ext_width_bytes % 4 != 0:
+            ext_width_bytes += (4 - (ext_width_bytes % 4))
 
         image_data_start = self.offset
-        image_data_end   = self.offset + self.height * self.width_bytes
-        self.image_data = data[image_data_start:image_data_end]
+        self.image_data = b''
+        for row in range(self.height):
+            self.image_data += data[image_data_start + row*ext_width_bytes : image_data_start + row*ext_width_bytes+self.width_bytes]
 
 if __name__ == "__main__":
-    E = Bitmap()
-    E.load_file("eye.bmp")
+    A = Bitmap()
+    B = Bitmap()
+    A.load_file("家.bmp")
+    B.load_file("家256.bmp")
+    print(A.file_size_bytes, B.file_size_bytes)
+    print(A.width_bytes, B.width_bytes)
+    #for row in range(E.height):
+    #    print(E.image_data[row * E.width_bytes : (row+1) * E.width_bytes])

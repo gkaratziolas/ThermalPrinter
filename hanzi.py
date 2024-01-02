@@ -23,6 +23,18 @@ sans_path = 'C:\\Users\\meisg\\OneDrive\\Desktop\\Noto_Sans_SC\\static\\NotoSans
 serif_path = 'C:\\Users\\meisg\\OneDrive\\Desktop\\Noto_Serif_SC\\NotoSerifSC-Medium.otf'
 kaiti_path = "C:\\Windows\\Fonts\\simkai.ttf"
 
-# Example usage
-bitmap = create_bitmap("家", kaiti_path, 1000).show()
-bitmap = create_bitmap("狗", kaiti_path, 1000).show()
+
+if __name__ == "__main__":
+    # Example usage
+    bitmap = create_bitmap("好", kaiti_path, 1000)
+    bitmap.show()
+    exit()
+    bitmap = bitmap.convert("1")
+    bitmap.save("海.bmp")
+    exit()
+    bitmap = create_bitmap("家", kaiti_path, 384)
+    #bitmap.show()
+    bitmap = bitmap.convert("1")
+    bitmap.save("家384.bmp")
+    bitmap = create_bitmap("案", kaiti_path, 1000)
+    bitmap.show()
